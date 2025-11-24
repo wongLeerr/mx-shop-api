@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"mx-shop-api/user-web/global"
 	"mx-shop-api/user-web/global/response"
 	"mx-shop-api/user-web/proto"
 	"net/http"
@@ -44,11 +45,9 @@ func HandleGrpcErrorToHttp(err error, ctx *gin.Context) {
 
 func GetUserList(ctx *gin.Context) {
 	s := zap.S()
-	ip := "127.0.0.1"
-	port := 50051
 
 	// 拨号连接user grpc服务
-	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", ip, port), grpc.WithInsecure())
+	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvConf.Host, global.ServerConfig.UserSrvConf.Port), grpc.WithInsecure())
 	if err != nil {
 		s.Errorw("connect to user service error:", err.Error())
 		return

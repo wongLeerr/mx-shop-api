@@ -13,3 +13,10 @@ zap.L是zap.Logger的简易调用方式，zap.S是zap.SugaredLogger的简易调�
 # 使用 protoc 生成 go 代码
 生成普通proto结构体代码: `protoc --go_out=. user.proto`
 生成gRPC service接口代码:  `protoc --go-grpc_out=. user.proto`
+
+# DTO
+DTO（Data Transfer Object）
+
+# go的配置文件管理
+viper
+why viper? 支持默认值、监听配置文件变动、很多简单易用的能力。
