@@ -3,10 +3,12 @@ package api
 import (
 	"context"
 	"fmt"
+	"mx-shop-api/user-web/forms"
 	"mx-shop-api/user-web/global"
 	"mx-shop-api/user-web/global/response"
 	"mx-shop-api/user-web/proto"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -55,9 +57,14 @@ func GetUserList(ctx *gin.Context) {
 
 	// 生成grpc的client并调用接口
 	userClient := proto.NewUserClient(userConn)
+	pn := ctx.DefaultQuery("pn", "1")
+	pnInt, _ := strconv.Atoi(pn)
+	pSize := ctx.DefaultQuery("psize", "10")
+	pSizeInt, _ := strconv.Atoi(pSize)
+
 	pageInfo := proto.PageInfo{
-		Pn:    0,
-		PSize: 0,
+		Pn:    uint32(pnInt),
+		PSize: uint32(pSizeInt),
 	}
 	rsp, err := userClient.GetUserList(context.Background(), &pageInfo)
 	if err != nil {
@@ -78,4 +85,20 @@ func GetUserList(ctx *gin.Context) {
 		result = append(result, data)
 	}
 	ctx.JSON(http.StatusOK, result)
+}
+
+func PasswordLogin(ctx *gin.Context) {
+	s := zap.S()
+	loginForm := forms.PasswordLoginForm{}
+
+	err := ctx.ShouldBind(&loginForm)
+	if err != nil {
+		s.Errorln(err.Error())
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg": "ok",
+	})
 }

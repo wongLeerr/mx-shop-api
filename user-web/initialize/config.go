@@ -4,7 +4,6 @@ import (
 	"mx-shop-api/user-web/global"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
@@ -51,6 +50,4 @@ func InitConfig() {
 		_ = v.Unmarshal(global.ServerConfig)
 		s.Infof("全局配置文件：%v", global.ServerConfig)
 	})
-
-	time.Sleep(time.Second * 300)
 }
