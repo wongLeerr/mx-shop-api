@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"mx-shop-api/user-web/global"
 	"mx-shop-api/user-web/initialize"
+	customValidator "mx-shop-api/user-web/validator"
 
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 )
 
@@ -15,6 +18,10 @@ func main() {
 	initialize.InitConfig()
 	// 初始化router
 	Router := initialize.Routers()
+	// 注册自定义表单验证器
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		_ = v.RegisterValidation("mobile", customValidator.ValidateMobile)
+	}
 
 	s := zap.S() // 创建sugarLogger实例
 	s.Infof("🚀server will running at port: %d", global.ServerConfig.Port)
