@@ -98,7 +98,56 @@ func PasswordLogin(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"msg": "ok",
+	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvConf.Host, global.ServerConfig.UserSrvConf.Port), grpc.WithInsecure())
+	if err != nil {
+		s.Errorw("connect to user service error:", err.Error())
+		return
+	}
+
+	userClient := proto.NewUserClient(userConn)
+	// 登录逻辑验证
+	// 首先查询是否有该用户
+	resp, err := userClient.GetUserByMobile(context.Background(), &proto.MobileRequest{
+		Mobile: loginForm.Mobile,
 	})
+	// 没查到用户
+	if err != nil {
+		statusInfo, ok := status.FromError(err)
+		if ok {
+			switch statusInfo.Code() {
+			case codes.NotFound:
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"msg": "用户不存在",
+				})
+			default:
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"msg": "登录错误",
+				})
+
+			}
+		}
+		return
+	}
+	// 查到用户了，应当检查用户传入的密码与存储的密码是否一致
+	checkResp, err := userClient.CheckPassword(context.Background(), &proto.PasswordCheckInfo{
+		Password:          loginForm.Password, // 入参传的是明文
+		EncryptedPassword: resp.Password,      // 库里存的是密文
+	})
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "登录失败",
+		})
+		return
+	}
+	if checkResp.Success {
+		// 密码正确
+		ctx.JSON(http.StatusOK, gin.H{
+			"msg": "登录成功",
+		})
+	} else {
+		// 密码错误
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "密码错误",
+		})
+	}
 }
