@@ -6,11 +6,14 @@ import (
 	"mx-shop-api/user-web/forms"
 	"mx-shop-api/user-web/global"
 	"mx-shop-api/user-web/global/response"
+	"mx-shop-api/user-web/middlewares"
+	"mx-shop-api/user-web/models"
 	"mx-shop-api/user-web/proto"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -140,9 +143,33 @@ func PasswordLogin(ctx *gin.Context) {
 		return
 	}
 	if checkResp.Success {
+		// 生成token
+		j := middlewares.NewJWT()
+		claims := models.CustomClaims{
+			ID:          uint(resp.Id),
+			NickName:    resp.NickName,
+			AuthorityId: uint(resp.Role),
+			StandardClaims: jwt.StandardClaims{
+				NotBefore: time.Now().Unix(),               // 签名的生效时间
+				ExpiresAt: time.Now().Unix() + 60*60*24*30, // 30天过期
+				Issuer:    "lele",                          // 哪个机构的认证签名
+			},
+		}
+		token, err := j.CreateToken(claims)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"msg": "内部生成token错误",
+			})
+			return
+		}
+
 		// 密码正确
 		ctx.JSON(http.StatusOK, gin.H{
-			"msg": "登录成功",
+			"msg":       "登录成功",
+			"id":        resp.Id,
+			"nickname":  resp.NickName,
+			"token":     token,
+			"expire_at": (time.Now().Unix() + 60*60*24*30) * 1000,
 		})
 	} else {
 		// 密码错误

@@ -3,3 +3,5 @@ port: 8021
 user_srv:
   host: '127.0.0.1'
   port: 50051
+jwt:
+  key: '2aX8Y2iN5M6fKPYFKEdexkJWXEdH3Rmh'
