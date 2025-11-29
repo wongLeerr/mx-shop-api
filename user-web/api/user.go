@@ -101,6 +101,16 @@ func PasswordLogin(ctx *gin.Context) {
 		return
 	}
 
+	// 对用户传入验证码进行验证
+	if verifyResult := store.Verify(loginForm.CaptchaId, loginForm.Captcha, true); !verifyResult {
+		s.Infof("CaptchaId:%s , Captcha:%s", loginForm.CaptchaId, loginForm.Captcha)
+		// 验证不通过
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "验证码错误",
+		})
+		return
+	}
+
 	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvConf.Host, global.ServerConfig.UserSrvConf.Port), grpc.WithInsecure())
 	if err != nil {
 		s.Errorw("connect to user service error:", err.Error())
