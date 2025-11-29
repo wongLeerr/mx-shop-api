@@ -12,5 +12,6 @@ func InitUserRouter(router *gin.RouterGroup) {
 	{
 		userGroup.GET("/list", middlewares.JWTAuth(), middlewares.IsAdmin(), api.GetUserList) // 鉴权是否登录、鉴权是否是管理员、前两者都满足才会返回userlist
 		userGroup.POST("/pwd_login", api.PasswordLogin)
+		userGroup.POST("/register", api.Register)
 	}
 }

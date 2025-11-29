@@ -15,6 +15,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -187,4 +188,96 @@ func PasswordLogin(ctx *gin.Context) {
 			"msg": "密码错误",
 		})
 	}
+}
+
+func Register(ctx *gin.Context) {
+	s := zap.S()
+	registerForm := forms.RegisterForm{}
+	err := ctx.ShouldBind(&registerForm)
+	if err != nil {
+		s.Errorln(err.Error())
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvConf.Host, global.ServerConfig.UserSrvConf.Port), grpc.WithInsecure())
+	if err != nil {
+		s.Errorw("connect to user service error:", err.Error())
+		return
+	}
+
+	userClient := proto.NewUserClient(userConn)
+	// 验证验证码是否正确
+	// 将验证码保存到redis
+	Rdb := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%d", global.ServerConfig.RedisInfo.Host, global.ServerConfig.RedisInfo.Port),
+		Password: "",
+		DB:       0, // 默认DB
+	})
+
+	_, err = Rdb.Ping(Ctx).Result()
+	if err != nil {
+		s.Errorf("Redis 连接失败: %v", err)
+	}
+	s.Infoln("Redis 连接成功!")
+
+	val, _ := Rdb.Get(Ctx, registerForm.Mobile).Result()
+	// if err == redis.Nil {
+	// 	s.Error("Redis value not found")
+	// 	ctx.JSON(http.StatusBadRequest, gin.H{
+	// 		"msg": "验证码错误",
+	// 	})
+	// 	return
+	// } else if val != registerForm.Code {
+	// 	s.Error("Redis value not found")
+	// 	ctx.JSON(http.StatusBadRequest, gin.H{
+	// 		"msg": "验证码错误",
+	// 	})
+	// 	return
+	// }
+
+	s.Infof("Rdb.Get>>> %s", val)
+
+	// 创建用户 + 登录成功（返回token）
+	resp, err := userClient.CreateUser(Ctx, &proto.CreateUserInfo{
+		Mobile:   registerForm.Mobile,
+		Password: registerForm.Password,
+		NickName: "新用户" + registerForm.Mobile,
+	})
+	if err != nil {
+		s.Error("创建用户失败")
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "创建用户失败",
+			"err": err.Error(),
+		})
+		return
+	}
+
+	// 生成token
+	j := middlewares.NewJWT()
+	claims := models.CustomClaims{
+		ID:          uint(resp.Id),
+		NickName:    resp.NickName,
+		AuthorityId: uint(resp.Role),
+		StandardClaims: jwt.StandardClaims{
+			NotBefore: time.Now().Unix(),               // 签名的生效时间
+			ExpiresAt: time.Now().Unix() + 60*60*24*30, // 30天过期
+			Issuer:    "lele",                          // 哪个机构的认证签名
+		},
+	}
+	token, err := j.CreateToken(claims)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "内部生成token错误",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg":       "注册并登录成功",
+		"id":        resp.Id,
+		"nickname":  resp.NickName,
+		"token":     token,
+		"expire_at": (time.Now().Unix() + 60*60*24*30) * 1000,
+	})
 }
