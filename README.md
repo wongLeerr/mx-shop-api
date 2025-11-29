@@ -20,3 +20,16 @@ DTO（Data Transfer Object）
 # go的配置文件管理
 viper
 why viper? 支持默认值、监听配置文件变动、很多简单易用的能力。
+
+# redis
+基于内存的 Key-Value 数据库
+
+启动 redis：`brew services start redis`
+测试 redis 是否运行成功：`redis-cli ping`
+
+| 配置项          | 值               |
+| ------------ | --------------- |
+| **Host**     | `127.0.0.1`     |
+| **Port**     | `6379`          |
+| **Password** | 空（如果你没设置密码的话）   |
+
