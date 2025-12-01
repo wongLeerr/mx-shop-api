@@ -26,6 +26,8 @@ why viper? 支持默认值、监听配置文件变动、很多简单易用的能
 
 启动 redis：`brew services start redis`
 测试 redis 是否运行成功：`redis-cli ping`
+启动redis服务端：`redis-server`
+启动redis客户端：`redis-cli`
 
 | 配置项          | 值               |
 | ------------ | --------------- |
