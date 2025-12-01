@@ -35,3 +35,8 @@ why viper? 支持默认值、监听配置文件变动、很多简单易用的能
 | **Port**     | `6379`          |
 | **Password** | 空（如果你没设置密码的话）   |
 
+# 服务注册 服务发现
+启动 consul：`consul agent -dev`
+访问可视化界面：`http://localhost:8500/ui`
+使用dig解析服务name对应ip和port：`dig @127.0.0.1 -p 8600 web.service.consul` 其中：dig @127.0.0.1 -p 8600 表示连接本地的consul服务，解析web服务。xxx.service.consul中xxx表示服务名称，后面为固定写法。
+
