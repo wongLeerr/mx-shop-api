@@ -17,7 +17,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -51,16 +50,6 @@ func HandleGrpcErrorToHttp(err error, ctx *gin.Context) {
 
 func GetUserList(ctx *gin.Context) {
 	s := zap.S()
-
-	// 拨号连接user grpc服务
-	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvConf.Host, global.ServerConfig.UserSrvConf.Port), grpc.WithInsecure())
-	if err != nil {
-		s.Errorw("connect to user service error:", err.Error())
-		return
-	}
-
-	// 生成grpc的client并调用接口
-	userClient := proto.NewUserClient(userConn)
 	pn := ctx.DefaultQuery("pn", "1")
 	pnInt, _ := strconv.Atoi(pn)
 	pSize := ctx.DefaultQuery("psize", "10")
@@ -70,6 +59,7 @@ func GetUserList(ctx *gin.Context) {
 		Pn:    uint32(pnInt),
 		PSize: uint32(pSizeInt),
 	}
+	userClient := global.UserSrvClient
 	rsp, err := userClient.GetUserList(context.Background(), &pageInfo)
 	if err != nil {
 		s.Errorw("GetUserList Err:", err.Error())
@@ -112,13 +102,7 @@ func PasswordLogin(ctx *gin.Context) {
 		return
 	}
 
-	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvConf.Host, global.ServerConfig.UserSrvConf.Port), grpc.WithInsecure())
-	if err != nil {
-		s.Errorw("connect to user service error:", err.Error())
-		return
-	}
-
-	userClient := proto.NewUserClient(userConn)
+	userClient := global.UserSrvClient
 	// 登录逻辑验证
 	// 首先查询是否有该用户
 	resp, err := userClient.GetUserByMobile(context.Background(), &proto.MobileRequest{
@@ -200,13 +184,7 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
-	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvConf.Host, global.ServerConfig.UserSrvConf.Port), grpc.WithInsecure())
-	if err != nil {
-		s.Errorw("connect to user service error:", err.Error())
-		return
-	}
-
-	userClient := proto.NewUserClient(userConn)
+	userClient := global.UserSrvClient
 	// 验证验证码是否正确
 	// 将验证码保存到redis
 	Rdb := redis.NewClient(&redis.Options{

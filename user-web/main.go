@@ -18,6 +18,8 @@ func main() {
 	initialize.InitConfig()
 	// 初始化router
 	Router := initialize.Routers()
+	// 初始化srv的连接，生成全局client
+	initialize.InitSrvConn()
 	// 注册自定义表单验证器
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		_ = v.RegisterValidation("mobile", customValidator.ValidateMobile)
