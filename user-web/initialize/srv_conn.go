@@ -6,11 +6,29 @@ import (
 	"mx-shop-api/user-web/proto"
 
 	"github.com/hashicorp/consul/api"
+	_ "github.com/mbobakov/grpc-consul-resolver" // It's important
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
 
 func InitSrvConn() {
+	s := zap.S()
+	consulInfo := global.ServerConfig.ConsulInfo
+	userConn, err := grpc.Dial(
+		fmt.Sprintf("consul://%s:%d/%s?wait=14s", consulInfo.Host, consulInfo.Port, global.ServerConfig.UserSrvConf.Name),
+		grpc.WithInsecure(),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
+	)
+	if err != nil {
+		s.Fatal("【InitSrvConn】用户服务连接失败")
+	}
+
+	userClient := proto.NewUserClient(userConn)
+	global.UserSrvClient = userClient
+}
+
+// 未使用负载均衡版本（直接call一个确定服务的srv）
+func InitSrvCon2() {
 	s := zap.S()
 	// 从注册中心获取用户服务（服务发现）
 	conf := api.DefaultConfig()
