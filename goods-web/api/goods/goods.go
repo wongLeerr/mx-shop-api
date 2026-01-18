@@ -41,6 +41,32 @@ func HandleGrpcErrorToHttp(err error, ctx *gin.Context) {
 	}
 }
 
+func GoodRespAdapter(value *proto.GoodsInfoResponse) interface{} {
+	return map[string]interface{}{
+		"id":          value.Id,
+		"name":        value.Name,
+		"goods_brief": value.GoodsBrief,
+		"desc":        value.GoodsDesc,
+		"ship_free":   value.ShipFree,
+		"images":      value.Images,
+		"desc_images": value.DescImages,
+		"front_image": value.GoodsFrontImage,
+		"shop_price":  value.ShopPrice,
+		"category": map[string]interface{}{
+			"id":   value.Category.Id,
+			"name": value.Category.Name,
+		},
+		"brand": map[string]interface{}{
+			"id":   value.Brand.Id,
+			"name": value.Brand.Name,
+			"logo": value.Brand.Logo,
+		},
+		"is_hot":  value.IsHot,
+		"is_new":  value.IsNew,
+		"on_sale": value.OnSale,
+	}
+}
+
 func GoodsList(ctx *gin.Context) {
 	s := zap.S()
 	req := proto.GoodsFilterRequest{}
@@ -107,29 +133,7 @@ func GoodsList(ctx *gin.Context) {
 	goodsList := make([]interface{}, 0)
 
 	for _, value := range resp.Data {
-		goodsList = append(goodsList, map[string]interface{}{
-			"id":          value.Id,
-			"name":        value.Name,
-			"goods_brief": value.GoodsBrief,
-			"desc":        value.GoodsDesc,
-			"ship_free":   value.ShipFree,
-			"images":      value.Images,
-			"desc_images": value.DescImages,
-			"front_image": value.GoodsFrontImage,
-			"shop_price":  value.ShopPrice,
-			"category": map[string]interface{}{
-				"id":   value.Category.Id,
-				"name": value.Category.Name,
-			},
-			"brand": map[string]interface{}{
-				"id":   value.Brand.Id,
-				"name": value.Brand.Name,
-				"logo": value.Brand.Logo,
-			},
-			"is_hot":  value.IsHot,
-			"is_new":  value.IsNew,
-			"on_sale": value.OnSale,
-		})
+		goodsList = append(goodsList, GoodRespAdapter(value))
 	}
 
 	respMap := map[string]interface{}{
@@ -172,5 +176,26 @@ func CreateGoods(ctx *gin.Context) {
 	// TODO: 库存管理
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": resp,
+	})
+}
+
+func GoodsDetail(ctx *gin.Context) {
+	s := zap.S()
+	goodId := ctx.Param("id")
+	goodIdInt, _ := strconv.Atoi(goodId)
+	resp, err := global.GoodSrvClient.GetGoodsDetail(context.Background(), &proto.GoodInfoRequest{
+		Id: int32(goodIdInt),
+	})
+	if err != nil {
+		s.Errorf("【GoodsDetail】Error", err.Error())
+		HandleGrpcErrorToHttp(err, ctx)
+		return
+	}
+
+	data := GoodRespAdapter(resp)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg":  "ok",
+		"data": data,
 	})
 }
