@@ -14,5 +14,8 @@ func InitGoodsRouter(router *gin.RouterGroup) {
 		GoodsGroup.POST("/create", middlewares.JWTAuth(), middlewares.IsAdmin(), goods.CreateGoods)
 		GoodsGroup.GET("/detail/:id", goods.GoodsDetail)
 		GoodsGroup.DELETE("/delete/:id", middlewares.JWTAuth(), middlewares.IsAdmin(), goods.DeleteGoods)
+		GoodsGroup.GET("/stock/:id", goods.Stock)                     // 获取商品库存
+		GoodsGroup.PUT("/update/:id", goods.UpdateGoods)              // 更新商品
+		GoodsGroup.PATCH("/updateStatus/:id", goods.UpdateGoodStatus) // 更新商品状态
 	}
 }

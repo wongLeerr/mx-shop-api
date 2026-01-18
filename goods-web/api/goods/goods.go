@@ -217,3 +217,77 @@ func DeleteGoods(ctx *gin.Context) {
 		"msg": "ok",
 	})
 }
+
+func Stock(ctx *gin.Context) {
+	// s := zap.S()
+	// goodId := ctx.Param("id")
+	// goodIdInt, _ := strconv.Atoi(goodId)
+
+	// return
+	// TODO：库存
+}
+
+func UpdateGoodStatus(ctx *gin.Context) {
+	s := zap.S()
+	var updateStatusForm forms.GoodsStatusForm
+	err := ctx.ShouldBind(&updateStatusForm)
+	if err != nil {
+		s.Errorln(err.Error())
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	goodId := ctx.Param("id")
+	goodIdInt, _ := strconv.Atoi(goodId)
+
+	_, err = global.GoodSrvClient.UpdateGoods(context.Background(), &proto.CreateGoodsInfo{
+		Id:     int32(goodIdInt),
+		IsNew:  *updateStatusForm.IsNew,
+		IsHot:  *updateStatusForm.IsHot,
+		OnSale: *updateStatusForm.OnSale,
+	})
+	if err != nil {
+		s.Errorf("【UpdateGoodStatus】Error", err.Error())
+		HandleGrpcErrorToHttp(err, ctx)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg": "ok",
+	})
+}
+
+func UpdateGoods(ctx *gin.Context) {
+	s := zap.S()
+	var goodsForm forms.GoodsForm
+	err := ctx.ShouldBind(&goodsForm)
+	if err != nil {
+		s.Errorln(err.Error())
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	goodId := ctx.Param("id")
+	goodIdInt, _ := strconv.Atoi(goodId)
+	_, err = global.GoodSrvClient.UpdateGoods(context.Background(), &proto.CreateGoodsInfo{
+		Id:              int32(goodIdInt),
+		Name:            goodsForm.Name,
+		GoodsSn:         goodsForm.GoodsSn,
+		Stocks:          goodsForm.Stocks,
+		CategoryId:      goodsForm.CategoryId,
+		MarketPrice:     goodsForm.MarketPrice,
+		ShopPrice:       goodsForm.ShopPrice,
+		GoodsBrief:      goodsForm.GoodsBrief,
+		Images:          goodsForm.Images,
+		DescImages:      goodsForm.DescImages,
+		ShipFree:        *goodsForm.ShipFree,
+		GoodsFrontImage: goodsForm.FrontImage,
+		BrandId:         goodsForm.Brand,
+	})
+	if err != nil {
+		s.Errorf("【UpdateGoods】Error", err.Error())
+		HandleGrpcErrorToHttp(err, ctx)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg": "ok",
+	})
+}
