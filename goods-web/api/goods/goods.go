@@ -2,6 +2,7 @@ package goods
 
 import (
 	"context"
+	"mx-shop-api/goods-web/forms"
 	"mx-shop-api/goods-web/global"
 	"mx-shop-api/goods-web/proto"
 	"net/http"
@@ -137,4 +138,39 @@ func GoodsList(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, respMap)
+}
+
+func CreateGoods(ctx *gin.Context) {
+	s := zap.S()
+	var goodsForm forms.GoodsForm
+	if err := ctx.ShouldBind(&goodsForm); err != nil {
+		s.Errorln(err.Error())
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp, err := global.GoodSrvClient.CreateGoods(context.Background(), &proto.CreateGoodsInfo{
+		Name:            goodsForm.Name,
+		GoodsSn:         goodsForm.GoodsSn,
+		Stocks:          goodsForm.Stocks,
+		CategoryId:      goodsForm.CategoryId,
+		MarketPrice:     goodsForm.MarketPrice,
+		ShopPrice:       goodsForm.ShopPrice,
+		GoodsBrief:      goodsForm.GoodsBrief,
+		Images:          goodsForm.Images,
+		DescImages:      goodsForm.DescImages,
+		ShipFree:        *goodsForm.ShipFree,
+		GoodsFrontImage: goodsForm.FrontImage,
+		BrandId:         goodsForm.Brand,
+	})
+	if err != nil {
+		s.Errorf("【CreateGoods】Error", err.Error())
+		HandleGrpcErrorToHttp(err, ctx)
+		return
+	}
+
+	// TODO: 库存管理
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": resp,
+	})
 }
