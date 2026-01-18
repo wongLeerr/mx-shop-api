@@ -199,3 +199,21 @@ func GoodsDetail(ctx *gin.Context) {
 		"data": data,
 	})
 }
+
+func DeleteGoods(ctx *gin.Context) {
+	s := zap.S()
+	goodId := ctx.Param("id")
+	goodIdInt, _ := strconv.Atoi(goodId)
+	_, err := global.GoodSrvClient.DeleteGoods(context.Background(), &proto.DeleteGoodsInfo{
+		Id: int32(goodIdInt),
+	})
+	if err != nil {
+		s.Errorf("【DeleteGoods】Error", err.Error())
+		HandleGrpcErrorToHttp(err, ctx)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg": "ok",
+	})
+}

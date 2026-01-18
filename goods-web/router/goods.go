@@ -13,5 +13,6 @@ func InitGoodsRouter(router *gin.RouterGroup) {
 		GoodsGroup.GET("/list", goods.GoodsList)
 		GoodsGroup.POST("/create", middlewares.JWTAuth(), middlewares.IsAdmin(), goods.CreateGoods)
 		GoodsGroup.GET("/detail/:id", goods.GoodsDetail)
+		GoodsGroup.DELETE("/delete/:id", middlewares.JWTAuth(), middlewares.IsAdmin(), goods.DeleteGoods)
 	}
 }
