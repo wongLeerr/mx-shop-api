@@ -5,10 +5,15 @@ import (
 	"mx-shop-api/user-web/global"
 	"mx-shop-api/user-web/initialize"
 	"mx-shop-api/user-web/utils"
+	"mx-shop-api/user-web/utils/register/consul"
 	customValidator "mx-shop-api/user-web/validator"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 )
 
@@ -38,10 +43,27 @@ func main() {
 		_ = v.RegisterValidation("mobile", customValidator.ValidateMobile)
 	}
 
+	// 注册至Consul注册中心
+	serviceId := uuid.NewV4()
+	serviceIdStr := fmt.Sprintf("%s", serviceId)
+	registerClient := consul.NewRegistryClient(global.ServerConfig.ConsulInfo.Host, global.ServerConfig.ConsulInfo.Port)
+	registerClient.Register(global.ServerConfig.Host, global.ServerConfig.Port, serviceIdStr, global.ServerConfig.Name, global.ServerConfig.Tags)
+
 	s := zap.S() // 创建sugarLogger实例
 	s.Infof("🚀server will running at port: %d", global.ServerConfig.Port)
-	err := Router.Run(fmt.Sprintf(":%d", global.ServerConfig.Port))
+	go func() {
+		err := Router.Run(fmt.Sprintf(":%d", global.ServerConfig.Port))
+		if err != nil {
+			s.Panic("😭server run error:", err.Error())
+		}
+	}()
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	err := registerClient.DeRegister(serviceIdStr)
 	if err != nil {
-		s.Panic("😭server run error:", err.Error())
+		s.Errorf("注销失败")
+	} else {
+		s.Info("注销成功")
 	}
 }

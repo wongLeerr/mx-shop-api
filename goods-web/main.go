@@ -10,7 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/nacos-group/nacos-sdk-go/inner/uuid"
+	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 )
 
@@ -36,7 +36,7 @@ func main() {
 	}
 
 	// 注册至Consul注册中心
-	serviceId, _ := uuid.NewV4()
+	serviceId := uuid.NewV4()
 	serviceIdStr := fmt.Sprintf("%s", serviceId)
 	registerClient := consul.NewRegistryClient(global.ServerConfig.ConsulInfo.Host, global.ServerConfig.ConsulInfo.Port)
 	registerClient.Register(global.ServerConfig.Host, global.ServerConfig.Port, serviceIdStr, global.ServerConfig.Name, global.ServerConfig.Tags)
@@ -57,6 +57,6 @@ func main() {
 	if err != nil {
 		s.Errorf("注销失败")
 	} else {
-		s.Errorf("注销成功")
+		s.Info("注销成功")
 	}
 }

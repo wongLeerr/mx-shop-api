@@ -3,12 +3,19 @@ package initialize
 import (
 	"mx-shop-api/user-web/middlewares"
 	"mx-shop-api/user-web/router"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Routers() *gin.Engine {
 	Router := gin.Default()
+	Router.GET("/health", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{
+			"code":    http.StatusOK,
+			"success": true,
+		})
+	})
 	Router.Use(middlewares.Cors()) // 解决跨域
 
 	APIV1Router := Router.Group("v1")
