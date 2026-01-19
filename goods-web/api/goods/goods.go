@@ -229,8 +229,8 @@ func Stock(ctx *gin.Context) {
 
 func UpdateGoodStatus(ctx *gin.Context) {
 	s := zap.S()
-	var updateStatusForm forms.GoodsStatusForm
-	err := ctx.ShouldBind(&updateStatusForm)
+	var goodsStatusForm forms.GoodsStatusForm
+	err := ctx.ShouldBind(&goodsStatusForm)
 	if err != nil {
 		s.Errorln(err.Error())
 		ctx.JSON(http.StatusBadRequest, err.Error())
@@ -239,18 +239,17 @@ func UpdateGoodStatus(ctx *gin.Context) {
 	goodId := ctx.Param("id")
 	goodIdInt, _ := strconv.Atoi(goodId)
 
-	_, err = global.GoodSrvClient.UpdateGoods(context.Background(), &proto.CreateGoodsInfo{
+	_, err = global.GoodSrvClient.UpdateGoodsStatus(context.Background(), &proto.UpdateGoodsStatusRequest{
 		Id:     int32(goodIdInt),
-		IsNew:  *updateStatusForm.IsNew,
-		IsHot:  *updateStatusForm.IsHot,
-		OnSale: *updateStatusForm.OnSale,
+		IsNew:  *goodsStatusForm.IsNew,
+		IsHot:  *goodsStatusForm.IsHot,
+		OnSale: *goodsStatusForm.OnSale,
 	})
 	if err != nil {
-		s.Errorf("【UpdateGoodStatus】Error", err.Error())
+		s.Errorf("【UpdateGoodsStatus】Error", err.Error())
 		HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{
 		"msg": "ok",
 	})
