@@ -2,6 +2,7 @@ package goods
 
 import (
 	"context"
+	"mx-shop-api/goods-web/api"
 	"mx-shop-api/goods-web/forms"
 	"mx-shop-api/goods-web/global"
 	"mx-shop-api/goods-web/proto"
@@ -10,36 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
-
-func HandleGrpcErrorToHttp(err error, ctx *gin.Context) {
-	if err != nil {
-		status, ok := status.FromError(err)
-		if ok {
-			switch status.Code() {
-			case codes.NotFound:
-				ctx.JSON(http.StatusNotFound, gin.H{
-					"msg": status.Message(),
-				})
-			case codes.Internal:
-				ctx.JSON(http.StatusInternalServerError, gin.H{
-					"msg": "internal error",
-				})
-			case codes.InvalidArgument:
-				ctx.JSON(http.StatusBadRequest, gin.H{
-					"msg": "params error",
-				})
-			default:
-				ctx.JSON(http.StatusInternalServerError, gin.H{
-					"msg": "其他错误",
-				})
-			}
-			return
-		}
-	}
-}
 
 func GoodRespAdapter(value *proto.GoodsInfoResponse) interface{} {
 	return map[string]interface{}{
@@ -126,7 +98,7 @@ func GoodsList(ctx *gin.Context) {
 	resp, err := global.GoodSrvClient.GoodsList(context.Background(), &req)
 	if err != nil {
 		s.Errorf("【GoodsList】Error", err.Error())
-		HandleGrpcErrorToHttp(err, ctx)
+		api.HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
 
@@ -169,7 +141,7 @@ func CreateGoods(ctx *gin.Context) {
 	})
 	if err != nil {
 		s.Errorf("【CreateGoods】Error", err.Error())
-		HandleGrpcErrorToHttp(err, ctx)
+		api.HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
 
@@ -188,7 +160,7 @@ func GoodsDetail(ctx *gin.Context) {
 	})
 	if err != nil {
 		s.Errorf("【GoodsDetail】Error", err.Error())
-		HandleGrpcErrorToHttp(err, ctx)
+		api.HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
 
@@ -209,7 +181,7 @@ func DeleteGoods(ctx *gin.Context) {
 	})
 	if err != nil {
 		s.Errorf("【DeleteGoods】Error", err.Error())
-		HandleGrpcErrorToHttp(err, ctx)
+		api.HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
 
@@ -247,7 +219,7 @@ func UpdateGoodStatus(ctx *gin.Context) {
 	})
 	if err != nil {
 		s.Errorf("【UpdateGoodsStatus】Error", err.Error())
-		HandleGrpcErrorToHttp(err, ctx)
+		api.HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
@@ -283,7 +255,7 @@ func UpdateGoods(ctx *gin.Context) {
 	})
 	if err != nil {
 		s.Errorf("【UpdateGoods】Error", err.Error())
-		HandleGrpcErrorToHttp(err, ctx)
+		api.HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
