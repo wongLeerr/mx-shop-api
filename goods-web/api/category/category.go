@@ -58,9 +58,16 @@ func CreateCategory(ctx *gin.Context) {
 		return
 	}
 
+	respData := make(map[string]interface{})
+	respData["id"] = resp.Id
+	respData["name"] = resp.Name
+	respData["parent"] = resp.ParentCategory
+	respData["is_tab"] = resp.IsTab
+	respData["level"] = resp.Level
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"msg":  "ok",
-		"data": resp,
+		"data": respData,
 	})
 }
 
@@ -92,11 +99,16 @@ func UpdateCategory(ctx *gin.Context) {
 	}
 	categoryIdStr := ctx.Param("id")
 	categoryId, _ := strconv.Atoi(categoryIdStr)
-	_, err = global.GoodSrvClient.UpdateCategory(context.Background(), &proto.CategoryInfoRequest{
-		Id:    int32(categoryId),
-		Name:  updateCategoryForm.Name,
-		IsTab: *updateCategoryForm.IsTab,
-	})
+	request := proto.CategoryInfoRequest{
+		Id:   int32(categoryId),
+		Name: updateCategoryForm.Name,
+	}
+
+	if updateCategoryForm.IsTab != nil {
+		request.IsTab = *updateCategoryForm.IsTab
+	}
+
+	_, err = global.GoodSrvClient.UpdateCategory(context.Background(), &request)
 	if err != nil {
 		s.Errorf("【UpdateCategory】Error", err.Error())
 		api.HandleGrpcErrorToHttp(err, ctx)
