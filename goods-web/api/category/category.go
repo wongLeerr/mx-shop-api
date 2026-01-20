@@ -60,10 +60,6 @@ func CreateCategory(ctx *gin.Context) {
 
 	respData := make(map[string]interface{})
 	respData["id"] = resp.Id
-	respData["name"] = resp.Name
-	respData["parent"] = resp.ParentCategory
-	respData["is_tab"] = resp.IsTab
-	respData["level"] = resp.Level
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"msg":  "ok",
