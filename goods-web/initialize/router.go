@@ -22,6 +22,7 @@ func Routers() *gin.Engine {
 	APIV1Router := Router.Group("v1")
 	router.InitGoodsRouter(APIV1Router)
 	router.InitCategoryRouter(APIV1Router)
+	router.InitBannerRouter(APIV1Router)
 
 	return Router
 }
