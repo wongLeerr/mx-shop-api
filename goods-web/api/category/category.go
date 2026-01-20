@@ -120,9 +120,29 @@ func SubCategory(ctx *gin.Context) {
 		api.HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
-	// todo：转换成前端需要的下划线格式
+
+	respData := make(map[string]interface{}, 0)
+	respData["info"] = map[string]interface{}{
+		"id":     resp.Info.Id,
+		"name":   resp.Info.Name,
+		"is_tab": resp.Info.IsTab,
+		"level":  resp.Info.Level,
+		"parent": resp.Info.ParentCategory,
+	}
+	subCategory := make([]map[string]interface{}, 0)
+	for _, v := range resp.SubCategorys {
+		subCategory = append(subCategory, map[string]interface{}{
+			"id":     v.Id,
+			"name":   v.Name,
+			"level":  v.Level,
+			"is_tab": v.IsTab,
+			"parent": v.ParentCategory,
+		})
+	}
+	respData["sub_category"] = subCategory
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"msg":  "ok",
-		"data": resp,
+		"data": respData,
 	})
 }
