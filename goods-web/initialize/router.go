@@ -23,6 +23,7 @@ func Routers() *gin.Engine {
 	router.InitGoodsRouter(APIV1Router)
 	router.InitCategoryRouter(APIV1Router)
 	router.InitBannerRouter(APIV1Router)
+	router.InitBrandRouter(APIV1Router)
 
 	return Router
 }
