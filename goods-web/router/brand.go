@@ -14,4 +14,12 @@ func InitBrandRouter(router *gin.RouterGroup) {
 		BrandGroup.PUT("/update/:id", brands.UpdateBrand)
 		BrandGroup.GET("/list", brands.BrandList)
 	}
+	CategoryBrandGroup := router.Group("category_brand")
+	{
+		CategoryBrandGroup.POST("/create", brands.CreateCategoryBrand)
+		CategoryBrandGroup.DELETE("/delete/:id", brands.DeleteCategoryBrand)
+		CategoryBrandGroup.PUT("/update/:id", brands.UpdateCategoryBrand)
+		CategoryBrandGroup.GET("/brand/list", brands.GetBrandByCategoryId)
+		CategoryBrandGroup.GET("/list", brands.CategoryBrandList)
+	}
 }
