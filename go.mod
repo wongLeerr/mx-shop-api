@@ -3,12 +3,15 @@ module mx-shop-api
 go 1.25.3
 
 require (
+	github.com/aliyun/credentials-go v1.4.10
 	github.com/gin-gonic/gin v1.11.0
 	github.com/hashicorp/consul/api v1.33.0
 	github.com/nacos-group/nacos-sdk-go v1.1.6
 )
 
 require (
+	github.com/alibabacloud-go/debug v1.0.1 // indirect
+	github.com/alibabacloud-go/tea v1.2.2 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -46,8 +49,8 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.10 // indirect
 	github.com/gin-contrib/sse v1.1.0 // indirect
-	github.com/go-playground/locales v0.14.1 // indirect
-	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-playground/locales v0.14.1
+	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect

@@ -1,0 +1,55 @@
+<input type="file" id="file" />
+<button onclick="upload()">上传</button>
+
+<script>
+  /** resp
+   * {
+     "policy": "eyJleHBpcmF0aW9uIjoiMjAyNi0wMS0yN1QxMjo0MDoyMVoiLCJjb25kaXRpb25zIjpbWyJzdGFydHMtd2l0aCIsIiRrZXkiLCJ3YW5nbGVsZS1pbWFnZXMvIl1dfQ==",
+     "accessid": "LTAI5tJsTXG68std2sCBEgxK",
+     "expire": 1769488821,
+     "signature": "+n87ICbJBxY7puiNhMDtl8qiwz8=",
+     "host": "https://wanglele-dev.oss-cn-beijing.aliyuncs.com",
+     "dir": "wanglele-images/",
+     "callback": "eyJjYWxsYmFja1VybCI6Imh0dHBzOi8vc3VjY2luY3RseS1jcnlzdGFsbGlzYWJsZS1kZWxhaW5lLm5ncm9rLWZyZWUuZGV2L3YxL29zcy9jYWxsYmFjayIsImNhbGxiYWNrQm9keSI6ImZpbGVuYW1lPSR7b2JqZWN0fVx1MDAyNnNpemU9JHtzaXplfVx1MDAyNm1pbWVUeXBlPSR7bWltZVR5cGV9XHUwMDI2aGVpZ2h0PSR7aW1hZ2VJbmZvLmhlaWdodH1cdTAwMjZ3aWR0aD0ke2ltYWdlSW5mby53aWR0aH0iLCJjYWxsYmFja0JvZHlUeXBlIjoiYXBwbGljYXRpb24veC13d3ctZm9ybS11cmxlbmNvZGVkIn0="
+    }
+   **/
+  let accessData = {};
+  const fetchAccessData = async () => {
+    let resp = await fetch("http://localhost:8023/v1/oss/token", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const respData = await resp.json();
+    accessData = respData;
+  };
+
+  fetchAccessData();
+
+  const upload = () => {
+    const file = document.getElementById("file").files[0];
+
+    const formData = new FormData();
+    formData.append("key", accessData.dir + Date.now() + ".png");
+    formData.append("policy", accessData.policy);
+    formData.append("OSSAccessKeyId", accessData.accessid);
+    formData.append("signature", accessData.signature);
+    formData.append("success_action_status", "200");
+    formData.append("callback", accessData.callback);
+    formData.append("file", file);
+
+    fetch("https://wanglele-dev.oss-cn-beijing.aliyuncs.com", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.text())
+      .then((res) => {
+        console.log("上传成功", res);
+      })
+      .catch((err) => {
+        console.error("上传失败", err);
+      });
+  };
+</script>

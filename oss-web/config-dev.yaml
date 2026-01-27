@@ -1,0 +1,6 @@
+nacos:
+  host: "127.0.0.1"
+  port: 8848
+  namespace: '881cee2d-0fc7-4778-b71f-f8786d19cdd1'
+  group: 'dev'
+  dataid: 'oss-web.json'
