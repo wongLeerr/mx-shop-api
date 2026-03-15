@@ -3,15 +3,12 @@ module mx-shop-api
 go 1.25.3
 
 require (
-	github.com/aliyun/credentials-go v1.4.10
 	github.com/gin-gonic/gin v1.11.0
 	github.com/hashicorp/consul/api v1.33.0
 	github.com/nacos-group/nacos-sdk-go v1.1.6
 )
 
 require (
-	github.com/alibabacloud-go/debug v1.0.1 // indirect
-	github.com/alibabacloud-go/tea v1.2.2 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
