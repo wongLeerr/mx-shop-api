@@ -4,6 +4,10 @@ type OrderSrvConfig struct {
 	Name string `mapstructure:"name" json:"name"`
 }
 
+type GoodsSrvConfig struct {
+	Name string `mapstructure:"name" json:"name"`
+}
+
 type JWTConfig struct {
 	SigningKey string `mapstructure:"key" json:"key"`
 }
@@ -27,6 +31,7 @@ type ServerConfig struct {
 	Port         int            `mapstructure:"port" json:"port"`
 	Tags         []string       `mapstructure:"tags" json:"tags"`
 	OrderSrvConf OrderSrvConfig `mapstructure:"order_srv" json:"order_srv"`
+	GoodsSrvConf GoodsSrvConfig `mapstructure:"goods_srv" json:"goods_srv"`
 	JWTInfo      JWTConfig      `mapstructure:"jwt" json:"jwt"`
 	ConsulInfo   ConsulConfig   `mapstructure:"consul" json:"consul"`
 }
