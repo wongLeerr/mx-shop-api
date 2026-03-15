@@ -38,4 +38,17 @@ func InitSrvConn() {
 
 	goodsClient := proto.NewGoodsClient(goodsConn)
 	global.GoodsSrvClient = goodsClient
+
+	// 初始化库存底层服务连接
+	inventoryConn, err := grpc.Dial(
+		fmt.Sprintf("consul://%s:%d/%s?wait=14s", consulInfo.Host, consulInfo.Port, global.ServerConfig.InventorySrvConf.Name),
+		grpc.WithInsecure(),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
+	)
+	if err != nil {
+		s.Fatal("【InitSrvConn】库存服务连接失败")
+	}
+
+	inventoryClient := proto.NewInventoryClient(inventoryConn)
+	global.InventorySrvClient = inventoryClient
 }

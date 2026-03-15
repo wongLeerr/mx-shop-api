@@ -66,3 +66,15 @@ nacos中的一些概念：
 内网穿透工具，可将本地指定端口服务映射为公网IP。
 用法: `ngrok http xxxx` xxxx 为本地服务端口。
 
+### *bool问题
+```go
+type Form struct {
+	Checked *bool `json:"checked" form:"checked" binding:"required"`
+}
+
+// bool为什么要整成指针类型，bool类型会有什么问题？
+// 当设置为bool类型时，客户端传false进来，gin会认为这是bool的零值，会忽略，从而认为没传checked字段，正好和required冲突。
+// 设置为bool指针，会认为nil才是零值，参数正常传递true/false，但使用时注意*Checked取到bool值。
+```
+
+

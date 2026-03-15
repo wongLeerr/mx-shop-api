@@ -6,8 +6,9 @@ import (
 )
 
 var (
-	ServerConfig   *config.ServerConfig = &config.ServerConfig{}
-	NacosConfig    *config.NacosConfig  = &config.NacosConfig{}
-	OrderSrvClient proto.OrderClient
-	GoodsSrvClient proto.GoodsClient
+	ServerConfig       *config.ServerConfig = &config.ServerConfig{}
+	NacosConfig        *config.NacosConfig  = &config.NacosConfig{}
+	OrderSrvClient     proto.OrderClient
+	GoodsSrvClient     proto.GoodsClient
+	InventorySrvClient proto.InventoryClient
 )
