@@ -15,3 +15,7 @@ type MessageReqForm struct {
 	Message     string `json:"message"`
 	File        string `json:"file"`
 }
+
+type UserFavReqForm struct {
+	GoodsId int32 `json:"goodsId" binding:"required"`
+}
