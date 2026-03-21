@@ -8,7 +8,7 @@ import (
 var (
 	ServerConfig  *config.ServerConfig = &config.ServerConfig{}
 	NacosConfig   *config.NacosConfig  = &config.NacosConfig{}
-	Addresslient  proto.AddressClient
-	Messagelient  proto.MessageClient
+	AddressClient proto.AddressClient
+	MessageClient proto.MessageClient
 	UserFavClient proto.UserFavClient
 )

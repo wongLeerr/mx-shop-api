@@ -22,7 +22,7 @@ func Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	resp, err := global.Addresslient.CreateAddress(context.Background(), &proto.AddressRequest{
+	resp, err := global.AddressClient.CreateAddress(context.Background(), &proto.AddressRequest{
 		UserId:       int32(uid.(uint)),
 		Province:     addressForm.Province,
 		City:         addressForm.City,
@@ -49,7 +49,7 @@ func Del(ctx *gin.Context) {
 	id, _ := strconv.Atoi(idStr)
 	uid, _ := ctx.Get("userId")
 
-	_, err := global.Addresslient.DeleteAddress(context.Background(), &proto.AddressRequest{
+	_, err := global.AddressClient.DeleteAddress(context.Background(), &proto.AddressRequest{
 		Id:     int32(id),
 		UserId: int32(uid.(uint)),
 	})
@@ -76,7 +76,7 @@ func Update(ctx *gin.Context) {
 		return
 	}
 
-	_, err = global.Addresslient.UpdateAddress(context.Background(), &proto.AddressRequest{
+	_, err = global.AddressClient.UpdateAddress(context.Background(), &proto.AddressRequest{
 		Id:           int32(id),
 		UserId:       int32(uid.(uint)),
 		Province:     addressForm.Province,
@@ -99,7 +99,7 @@ func Update(ctx *gin.Context) {
 func List(ctx *gin.Context) {
 	s := zap.S()
 	uid, _ := ctx.Get("userId")
-	rsp, err := global.Addresslient.GetAddressList(context.Background(), &proto.AddressRequest{
+	rsp, err := global.AddressClient.GetAddressList(context.Background(), &proto.AddressRequest{
 		UserId: int32(uid.(uint)),
 	})
 	if err != nil {

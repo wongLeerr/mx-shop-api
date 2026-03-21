@@ -24,7 +24,7 @@ func InitSrvConn() {
 	}
 
 	addressClient := proto.NewAddressClient(addressConn)
-	global.Addresslient = addressClient
+	global.AddressClient = addressClient
 
 	// 初始化留言服务连接
 	messageConn, err := grpc.Dial(
@@ -37,7 +37,7 @@ func InitSrvConn() {
 	}
 
 	messageClient := proto.NewMessageClient(messageConn)
-	global.Messagelient = messageClient
+	global.MessageClient = messageClient
 
 	// 初始化收藏服务连接
 	userFavConn, err := grpc.Dial(
